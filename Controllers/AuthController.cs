@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,7 @@ namespace NotesOTG_Server.Controllers
     {
         
         private readonly IUserService userService;
-        
+
         public AuthController(IUserService userService)
         {
             this.userService = userService;
@@ -42,9 +43,10 @@ namespace NotesOTG_Server.Controllers
         
         [HttpGet("checkEmail")]
         [AllowAnonymous]
-        public async Task<IActionResult> CheckEmail([EmailAddress][Required]string email)
+        public async Task<IActionResult> CheckEmail()
         {
-            return Ok(await userService.EmailCheck(email));
+            Console.WriteLine("Got a request for email");
+            return Ok(await userService.EmailCheck("tristan@gmail.com"));
         }
 
         [HttpGet("checkUsername")]
@@ -52,6 +54,12 @@ namespace NotesOTG_Server.Controllers
         public async Task<IActionResult> CheckUsername([Required]string username)
         {
             return Ok(await userService.UsernameCheck(username));
+        }
+
+        [HttpPost("socialLogin")]
+        public async Task<IActionResult> SocialLogin(SocialRequest socialRequest)
+        {
+            return Ok(await userService.SocialLogin(socialRequest));
         }
 
     }

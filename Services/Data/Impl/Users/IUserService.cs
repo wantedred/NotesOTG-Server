@@ -12,5 +12,6 @@ namespace NotesOTG_Server.Services.Interfaces
         Task<BasicResponse> EmailCheck(string email);
         Task<BasicResponse> UsernameCheck(string username);
         Task<RefreshTokensResponse> refreshTokens(RefreshTokenRequest request);
+        Task<LoginResponse> SocialLogin(SocialRequest socialRequest);
     }
 }

@@ -47,7 +47,7 @@ namespace NotesOTG_Server
                         RequireNonAlphanumeric = true
                     };
                     options.User.RequireUniqueEmail = true;
-                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequiredUniqueChars = 1;
                     options.Password.RequireDigit = true;
@@ -77,6 +77,8 @@ namespace NotesOTG_Server
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://notesotg.com", "http://localhost:4200").AllowCredentials());
 
             app.UseEndpoints(endpoints =>
             {

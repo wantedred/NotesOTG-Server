@@ -7,9 +7,7 @@ namespace NotesOTG_Server.Models.Http.Responses.impl
     {
         
         public string Email { get; set; }
-        
-        public string Username { get; set; }
-        
+
         public string Token { get; set; }
         
         public string RefreshToken { get; set; }

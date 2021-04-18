@@ -1,6 +1,9 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using NotesOTG_Server.Models;
 using NotesOTG_Server.Models.Http.Requests;
 using NotesOTG_Server.Models.Http.Responses;
@@ -16,16 +19,19 @@ namespace NotesOTG_Server.Services
         private readonly SignInManager<NotesUser> signInManager;
         private readonly IRoleService roleService;
         private readonly ITokenService tokenService;
-
+        private readonly IConfiguration configuration;
+        
         public UserService ( UserManager<NotesUser> userManager,
             SignInManager<NotesUser> signInManager,
             IRoleService roleService,
-            ITokenService tokenService) 
+            ITokenService tokenService,
+            IConfiguration configuration) 
         {
             this.userManager = userManager;
             this.roleService = roleService;
             this.tokenService = tokenService;
             this.signInManager = signInManager;
+            this.configuration = configuration;
         }
         
         public async Task<LoginResponse> Login(LoginRequest request)
@@ -47,14 +53,14 @@ namespace NotesOTG_Server.Services
             var token = tokenService.GeneratePrimaryToken(user.Id);
             var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
             var roles = await roleService.GetUserRoles(user);
-            return new LoginResponse {Success = true, Email = user.Email, Username = user.UserName, Token = token, RefreshToken = refreshToken, Roles = roles};
+            return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles};
         }
 
         public async Task<RegisterResponse> Register(RegisterRequest request)
         {
             var notesUser = new NotesUser()
             {
-                UserName = request.DisplayName,
+                UserName = request.Email,
                 Email = request.Email
             };
 
@@ -72,6 +78,80 @@ namespace NotesOTG_Server.Services
                 errors.Append(":");
             }
             return new RegisterResponse { Success = false, Error = errors.ToString(0, errors.Length - 1)};
+        }
+
+        public async Task<LoginResponse> SocialLogin(SocialRequest socialRequest)
+        {
+            switch (socialRequest.SocialTypes)
+            {
+                case "Google":
+                    return await GoogleLogin(socialRequest.IdToken);
+                
+                case "Facebook":
+                    return await GoogleLogin(socialRequest.IdToken);
+                
+                case "Microsoft":
+                    return await GoogleLogin(socialRequest.IdToken);
+            }
+
+            return null;
+        }
+        
+        public async Task<LoginResponse> GoogleLogin(string googleToken)
+        {
+            GoogleJsonWebSignature.Payload payload;
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(googleToken,
+                    new GoogleJsonWebSignature.ValidationSettings()
+                    {
+                        Audience = new[] {configuration.GetValue<string>("ExternalClientIds:Google")},
+                        ForceGoogleCertRefresh = false,
+                        //HostedDomain = "https://notesotg.com"
+                    });
+            }
+            catch
+            {
+                return new LoginResponse {Success = false};
+            }
+            return await GetOrCreateExternalUser("Google", payload.Subject, payload.Email, payload.EmailVerified);
+        }
+        
+        private async Task<LoginResponse> GetOrCreateExternalUser(string provider, string key, string email, bool emailConfirmed)
+        {
+            var user = await userManager.FindByLoginAsync(provider, key);
+            if (user != null)
+            {
+                var token = tokenService.GeneratePrimaryToken(user.Id);
+                var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
+                var roles = await roleService.GetUserRoles(user);
+                return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles};
+            }
+
+            user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new NotesUser
+                {
+                    Email = email,
+                    UserName = email,
+                    EmailConfirmed = emailConfirmed
+                };
+                await userManager.CreateAsync(user);
+                await roleService.AddUserToRole(user, RoleType.User);
+            }
+
+            var info = new UserLoginInfo(provider, key, provider.ToUpperInvariant());
+            var result = await userManager.AddLoginAsync(user, info);
+            if (result.Succeeded)
+            {
+                var token = tokenService.GeneratePrimaryToken(user.Id);
+                var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
+                var roles = await roleService.GetUserRoles(user);
+                return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles};
+            }
+
+            return new LoginResponse {Success = false};
         }
 
         public async Task<RefreshTokensResponse> refreshTokens(RefreshTokenRequest request)
