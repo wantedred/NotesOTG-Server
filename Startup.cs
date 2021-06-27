@@ -11,6 +11,9 @@ using NotesOTG_Server.Models.Contexts;
 using NotesOTG_Server.Services;
 using NotesOTG_Server.Services.Interfaces;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace NotesOTG_Server
 {
@@ -58,9 +61,31 @@ namespace NotesOTG_Server
                 })
                 .AddEntityFrameworkStores<DatabaseContext>()
                 .AddDefaultTokenProviders();
-            services.AddTransient(typeof(IRoleService), typeof(RoleService));
-            services.AddTransient(typeof(IUserService), typeof(UserService));
-            services.AddTransient(typeof(ITokenService), typeof(TokenService));
+
+            services.AddAuthentication(opt => {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+               .AddJwtBearer(options =>
+               {
+                   options.TokenValidationParameters = new TokenValidationParameters
+                   {
+                       ValidateIssuer = true,
+                       ValidateAudience = true,
+                       ValidateLifetime = true,
+                       ValidateIssuerSigningKey = true,
+                       RequireExpirationTime = true,
+                       ClockSkew = TimeSpan.Zero,//add five minute grace period by default
+
+                        ValidIssuer = "https://localhost:44361",
+                       ValidAudience = "http://localhost:4200",
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
+                   };
+               });
+
+            services.AddTransient(typeof(RoleService));
+            services.AddTransient(typeof(UserService));
+            services.AddTransient(typeof(TokenService));
 
         }
 
@@ -72,14 +97,16 @@ namespace NotesOTG_Server
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://notesotg.com", "http://localhost:4200").AllowCredentials());
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
-
-            app.UseCors(config => config.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://notesotg.com", "http://localhost:4200").AllowCredentials());
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

@@ -13,6 +13,10 @@ namespace NotesOTG_Server.Models.Http.Responses.impl
         public string RefreshToken { get; set; }
         
         public IList<string> Roles { get; set; }
+
+        public bool HasPassword { get; set; }
+
+        public bool EmailVerified { get; set; }
         
     }
 }

@@ -12,19 +12,19 @@ using NotesOTG_Server.Services.Interfaces;
 
 namespace NotesOTG_Server.Services
 {
-    public class UserService : IUserService
+    public class UserService
     {
 
         private readonly UserManager<NotesUser> userManager;
         private readonly SignInManager<NotesUser> signInManager;
-        private readonly IRoleService roleService;
-        private readonly ITokenService tokenService;
+        private readonly RoleService roleService;
+        private readonly TokenService tokenService;
         private readonly IConfiguration configuration;
         
         public UserService ( UserManager<NotesUser> userManager,
             SignInManager<NotesUser> signInManager,
-            IRoleService roleService,
-            ITokenService tokenService,
+            RoleService roleService,
+            TokenService tokenService,
             IConfiguration configuration) 
         {
             this.userManager = userManager;
@@ -53,7 +53,9 @@ namespace NotesOTG_Server.Services
             var token = tokenService.GeneratePrimaryToken(user.Id);
             var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
             var roles = await roleService.GetUserRoles(user);
-            return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles};
+            var hasPassword = await userManager.HasPasswordAsync(user);
+            var emailVerified = await userManager.IsEmailConfirmedAsync(user);
+            return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles, HasPassword = hasPassword, EmailVerified = emailVerified};
         }
 
         public async Task<RegisterResponse> Register(RegisterRequest request)
@@ -125,7 +127,9 @@ namespace NotesOTG_Server.Services
                 var token = tokenService.GeneratePrimaryToken(user.Id);
                 var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
                 var roles = await roleService.GetUserRoles(user);
-                return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles};
+                var hasPassword = await userManager.HasPasswordAsync(user);
+                var emailVerified = await userManager.IsEmailConfirmedAsync(user);
+                return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles, HasPassword = hasPassword, EmailVerified = emailVerified };
             }
 
             user = await userManager.FindByEmailAsync(email);
@@ -148,13 +152,15 @@ namespace NotesOTG_Server.Services
                 var token = tokenService.GeneratePrimaryToken(user.Id);
                 var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
                 var roles = await roleService.GetUserRoles(user);
-                return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles};
+                var hasPassword = await userManager.HasPasswordAsync(user);
+                var emailVerified = await userManager.IsEmailConfirmedAsync(user);
+                return new LoginResponse {Success = true, Email = user.Email, Token = token, RefreshToken = refreshToken, Roles = roles, HasPassword = hasPassword, EmailVerified = emailVerified};
             }
 
             return new LoginResponse {Success = false};
         }
 
-        public async Task<RefreshTokensResponse> refreshTokens(RefreshTokenRequest request)
+        public async Task<RefreshTokensResponse> RefreshTokens(RefreshTokenRequest request)
         {
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user == null)

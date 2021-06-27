@@ -12,7 +12,7 @@ using NotesOTG_Server.Services.Interfaces;
 
 namespace NotesOTG_Server.Services
 {
-    public class TokenService: Service<RefreshToken>, ITokenService
+    public class TokenService: Service<RefreshToken>
     {
         public TokenService(DatabaseContext context) : base(context)
         { }
@@ -49,8 +49,8 @@ namespace NotesOTG_Server.Services
                 new Claim(ClaimTypes.Name, userId)
             };
             var tokeOptions = new JwtSecurityToken(
-                issuer: "https://localhost:5001",
-                audience: "http://localhost:5000",
+                issuer: "https://localhost:44361",
+                audience: "http://localhost:4200",
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(5),
                 signingCredentials: signinCredentials
@@ -85,16 +85,7 @@ namespace NotesOTG_Server.Services
                 Email = email,
                 Token = Guid.NewGuid().ToString()
             };
-            var refreshSearch = await entity.FirstOrDefaultAsync(m => m.Email == email);
-            if (refreshSearch != null)
-            {
-                refreshSearch.Token = refreshToken.Token;
-                entity.Update(refreshSearch);
-            }
-            else
-            {
-                await entity.AddAsync(refreshToken);
-            }
+            await entity.AddAsync(refreshToken);
             await SaveChanges();
             return refreshToken.Token;
         }

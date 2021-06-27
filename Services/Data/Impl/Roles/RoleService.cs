@@ -6,7 +6,7 @@ using NotesOTG_Server.Services.Interfaces;
 
 namespace NotesOTG_Server.Services
 {
-    public class RoleService : IRoleService
+    public class RoleService
     {
 
         private readonly UserManager<NotesUser> userManager;
