@@ -34,8 +34,7 @@ namespace NotesOTG_Server
             {
                 options.UseMySql(
                     Configuration.GetConnectionString("DefaultConnection"),
-                    new MySqlServerVersion(ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection")).Version),
-                    mySqlOptions => mySqlOptions.CharSetBehavior(CharSetBehavior.NeverAppend));
+                    new MySqlServerVersion(ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection")).Version));
             });
             
             services.AddIdentity<NotesUser, IdentityRole>(options =>
