@@ -40,13 +40,14 @@ namespace NotesOTG_Server.Services
             return save;
         }
 
-        public string GeneratePrimaryToken(string userId)
+        public string GeneratePrimaryToken(string userId, string email)
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, userId)
+                new Claim(ClaimTypes.Name, userId),
+                new Claim(ClaimTypes.Email, email)
             };
             var tokeOptions = new JwtSecurityToken(
                 issuer: "https://localhost:44361",

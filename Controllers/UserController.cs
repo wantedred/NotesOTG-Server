@@ -8,6 +8,7 @@ using NotesOTG_Server.Models.Http.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,6 +49,23 @@ namespace NotesOTG_Server.Controllers
             return changePassword.Succeeded ?
                 new BasicResponse { Success = true } :
                 new BasicResponse { Success = false, Error = errors.ToString(0, errors.Length - 1) };
+        }
+
+        [HttpGet("VerifiedEmail")]
+        [Authorize]
+        public async Task<BasicResponse> VerifiedEmail()
+        {
+            var tokenEmail = HttpContext.User.Claims.FirstOrDefault(email => email.Type == ClaimTypes.Email);
+            if (string.IsNullOrEmpty(tokenEmail.Value))
+            {
+                return new BasicResponse { Success = false };
+            }
+            var user = await userManager.FindByEmailAsync(tokenEmail.Value);
+            if (user == null)
+            {
+                return new BasicResponse{Success = false};
+            }
+            return new BasicResponse { Success = user.EmailConfirmed };
         }
 
     }

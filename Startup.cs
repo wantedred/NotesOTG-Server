@@ -36,7 +36,7 @@ namespace NotesOTG_Server
                     Configuration.GetConnectionString("DefaultConnection"),
                     new MySqlServerVersion(ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection")).Version));
             });
-            
+
             services.AddIdentity<NotesUser, IdentityRole>(options =>
                 {
                     options.Password = new PasswordOptions

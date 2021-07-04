@@ -50,7 +50,7 @@ namespace NotesOTG_Server.Services
                     : "Invalid email or password."};
             }
             
-            var token = tokenService.GeneratePrimaryToken(user.Id);
+            var token = tokenService.GeneratePrimaryToken(user.Id, user.Email);
             var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
             var roles = await roleService.GetUserRoles(user);
             var hasPassword = await userManager.HasPasswordAsync(user);
@@ -124,7 +124,7 @@ namespace NotesOTG_Server.Services
             var user = await userManager.FindByLoginAsync(provider, key);
             if (user != null)
             {
-                var token = tokenService.GeneratePrimaryToken(user.Id);
+                var token = tokenService.GeneratePrimaryToken(user.Id, user.Email);
                 var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
                 var roles = await roleService.GetUserRoles(user);
                 var hasPassword = await userManager.HasPasswordAsync(user);
@@ -149,7 +149,7 @@ namespace NotesOTG_Server.Services
             var result = await userManager.AddLoginAsync(user, info);
             if (result.Succeeded)
             {
-                var token = tokenService.GeneratePrimaryToken(user.Id);
+                var token = tokenService.GeneratePrimaryToken(user.Id, user.Email);
                 var refreshToken = await tokenService.IssueEmailRefresh(user.Email);
                 var roles = await roleService.GetUserRoles(user);
                 var hasPassword = await userManager.HasPasswordAsync(user);
@@ -169,7 +169,7 @@ namespace NotesOTG_Server.Services
             }
 
             var refreshToken = await tokenService.IssueStandardRefresh(request.RefreshToken, request.Email);
-            var token = tokenService.GeneratePrimaryToken(user.Id);
+            var token = tokenService.GeneratePrimaryToken(user.Id, user.Email);
             if (string.IsNullOrEmpty(refreshToken))
             {
                 return new RefreshTokensResponse { Success = false };
