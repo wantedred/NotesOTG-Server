@@ -174,7 +174,7 @@ namespace NotesOTG_Server.Services
             {
                 return new RefreshTokensResponse { Success = false };
             }
-            return new RefreshTokensResponse { Success = true, Token = token, RefreshToken = refreshToken };
+            return new RefreshTokensResponse { Success = true, PrimaryToken = token, RefreshToken = refreshToken };
         }
         
         public async Task<BasicResponse> EmailCheck(string email)
