@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using NotesOTG_Server.Models;
 using NotesOTG_Server.Models.Contexts;
 using NotesOTG_Server.Services;
-using NotesOTG_Server.Services.Interfaces;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -32,9 +30,10 @@ namespace NotesOTG_Server
             services.AddControllers();
             services.AddDbContext<DatabaseContext>(options =>
             {
-                options.UseMySql(
+                /*options.UseMySql(
                     Configuration.GetConnectionString("DefaultConnection"),
-                    new MySqlServerVersion(ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection")).Version));
+                    new MySqlServerVersion(ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection")).Version));*/
+                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddIdentity<NotesUser, IdentityRole>(options =>

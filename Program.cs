@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NotesOTG_Server.Services.Background;
 
 namespace NotesOTG_Server
 {
@@ -15,6 +17,9 @@ namespace NotesOTG_Server
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                }).ConfigureServices(services =>
+                {
+                    services.AddHostedService<TimedEmailService>();
                 });
     }
 }
