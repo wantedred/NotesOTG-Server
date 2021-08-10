@@ -8,6 +8,7 @@ using NotesOTG_Server.Models;
 using NotesOTG_Server.Models.Http.Requests;
 using NotesOTG_Server.Models.Http.Responses;
 using NotesOTG_Server.Models.Http.Responses.impl;
+using NotesOTG_Server.Services.Data.Impl.Email.Impl;
 using NotesOTG_Server.Services.Interfaces;
 
 namespace NotesOTG_Server.Services
@@ -70,6 +71,9 @@ namespace NotesOTG_Server.Services
             if (addUserTask.Succeeded)
             {
                 await roleService.AddUserToRole(notesUser, RoleType.User);
+                Guid guid = Guid.NewGuid();
+                var emailToken = Convert.ToBase64String(guid.ToByteArray());
+                new EmailVerificationTemplate(notesUser.Email, emailToken).PrepareAndSend();
                 return new RegisterResponse {Success = true};
             }
             
