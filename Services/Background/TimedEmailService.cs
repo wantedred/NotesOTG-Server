@@ -84,7 +84,7 @@ namespace NotesOTG_Server.Services.Background
         
         private async Task<bool> GetCredential(string email)
         {
-            var file = await File.ReadAllTextAsync("C:/Users/wante/RiderProjects/NotesOTG-Server/vivid-bond-307003-359248cfc2ec.json");
+            var file = await File.ReadAllTextAsync("############");
             var jsonObject = JObject.Parse(file);
 
             credential = new ServiceAccountCredential(new ServiceAccountCredential
