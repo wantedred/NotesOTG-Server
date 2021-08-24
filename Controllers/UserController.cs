@@ -1,27 +1,28 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NotesOTG_Server.Models;
 using NotesOTG_Server.Models.Http.Requests;
 using NotesOTG_Server.Models.Http.Responses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using NotesOTG_Server.Services;
 
 namespace NotesOTG_Server.Controllers
 {
     public class UserController : BaseController
     {
 
-        public UserManager<NotesUser> userManager;
+        private readonly UserManager<NotesUser> userManager;
+        private readonly EmailTokenService emailTokenService;
 
-        public UserController(UserManager<NotesUser> userManager)
+        public UserController(UserManager<NotesUser> userManager, EmailTokenService emailTokenService)
         {
             this.userManager = userManager;
+            this.emailTokenService = emailTokenService;
         }
 
         [HttpPost("changePassword")]
@@ -31,7 +32,12 @@ namespace NotesOTG_Server.Controllers
             var user = await this.userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                return new BasicResponse { Success = true };
+                return new BasicResponse { Success = false, Error = "Failed to change password unknown reason." };
+            }
+
+            if (!await emailTokenService.CheckEmailVerified(request.Email))
+            {
+                return new BasicResponse { Success = false, Error = "Email needs to be confirmed. Please check your email"};
             }
 
             var hasPassword = await userManager.HasPasswordAsync(user);
@@ -55,17 +61,25 @@ namespace NotesOTG_Server.Controllers
         [Authorize]
         public async Task<BasicResponse> VerifiedEmail()
         {
-            var tokenEmail = HttpContext.User.Claims.FirstOrDefault(email => email.Type == ClaimTypes.Email);
-            if (string.IsNullOrEmpty(tokenEmail.Value))
-            {
-                return new BasicResponse { Success = false };
-            }
-            var user = await userManager.FindByEmailAsync(tokenEmail.Value);
-            if (user == null)
-            {
-                return new BasicResponse{Success = false};
-            }
-            return new BasicResponse { Success = user.EmailConfirmed };
+            var userEmail = HttpContext.User.Claims.FirstOrDefault(email => email.Type == ClaimTypes.Email)?.Value;
+            var isUserEmailVerified = await emailTokenService.CheckEmailVerified(userEmail);
+            return new BasicResponse {Success = isUserEmailVerified};
+        }
+
+        [HttpGet("IssueEmailToken")]
+        [Authorize]
+        public async Task<BasicResponse> IssueVerificationToken()
+        {
+            var userEmail = HttpContext.User.Claims.FirstOrDefault(email => email.Type == ClaimTypes.Email)?.Value;
+            var newEmailTokenResponse = await emailTokenService.GenerateEmailVerificationToken(userEmail);
+            return newEmailTokenResponse;
+        }
+
+        [HttpPost("confirmEmail")]
+        public async Task<BasicResponse> VerifyEmail([FromBody]string emailToken)
+        {
+            var emailTokenResponse = await emailTokenService.ConfirmEmail(emailToken);
+            return emailTokenResponse;
         }
 
     }

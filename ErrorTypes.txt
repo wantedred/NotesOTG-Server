@@ -1,0 +1,5 @@
+﻿EMAIL TOKEN SERVICE
+4732 - no email was supplied. Method : GenerateEmailVerificationToken
+4532 - user is null. Method : GenerateEmailVerificationToken
+3524 - user is null. Method : ConfirmEmail
+

@@ -5,17 +5,18 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NotesOTG_Server.Models;
 using NotesOTG_Server.Models.Contexts;
-using NotesOTG_Server.Services.Interfaces;
 
-namespace NotesOTG_Server.Services
+namespace NotesOTG_Server.Services.Data.Impl.Tokens
 {
     public class TokenService: Service<RefreshToken>
     {
-        public TokenService(DatabaseContext context) : base(context)
-        { }
+        public TokenService(DatabaseContext context, ILogger<TokenService> logger) : base(context, logger)
+        {
+        }
 
         public async Task<RefreshToken> FindByToken(string refreshToken)
         {
@@ -90,5 +91,6 @@ namespace NotesOTG_Server.Services
             await SaveChanges();
             return refreshToken.Token;
         }
+        
     }
 }

@@ -12,6 +12,7 @@ using NotesOTG_Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using NotesOTG_Server.Services.Data.Impl.Tokens;
 
 namespace NotesOTG_Server
 {
@@ -80,9 +81,10 @@ namespace NotesOTG_Server
                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
                    };
                });
-
+            
             services.AddTransient(typeof(RoleService));
             services.AddTransient(typeof(UserService));
+            services.AddTransient(typeof(EmailTokenService));
             services.AddTransient(typeof(TokenService));
 
         }

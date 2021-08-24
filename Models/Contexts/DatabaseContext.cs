@@ -16,5 +16,7 @@ namespace NotesOTG_Server.Models.Contexts
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         public DbSet<Notes> Notes { get; set; }
+        
+        public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
     }
 }

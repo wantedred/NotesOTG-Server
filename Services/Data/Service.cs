@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NotesOTG_Server.Models.Contexts;
 using NotesOTG_Server.Services.Interfaces;
 
@@ -12,7 +13,7 @@ namespace NotesOTG_Server.Services
         protected readonly DbSet<TEntity> entity;
         private readonly DatabaseContext context;
 
-        protected Service(DatabaseContext context)
+        protected Service(DatabaseContext context, ILogger<Service<TEntity>> logger)
         {
             this.context = context;
             entity = context.Set<TEntity>();

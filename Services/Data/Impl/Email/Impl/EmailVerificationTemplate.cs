@@ -22,6 +22,8 @@ namespace NotesOTG_Server.Services.Data.Impl.Email.Impl
                 https://www.notesotg.com/verifyemail?token={emailToken}
                 <br><br>Please be advised that this link will expire in 5 days.";
             SendEmail();
+            //""https://www.notesotg.com/verifyemail?token={emailToken}""
+            //""http://localhost:4200/verifyemail?token={emailToken}""
         }
         
     }

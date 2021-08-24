@@ -68,7 +68,10 @@ namespace NotesOTG_Server.Services.Background
             {
                 //SaslMechanismOAuth2 oauth2 = new SaslMechanismOAuth2("support@notesotg.com", CredentialsList["support@notesotg.com"].Token.AccessToken);
                 SaslMechanismOAuth2 oauth2 = new SaslMechanismOAuth2(pendingEmail.From.ToString(), credentialsList[pendingEmail.From.ToString()].Token.AccessToken);
-                await smtpClient.AuthenticateAsync(oauth2);
+                if (!smtpClient.IsAuthenticated)
+                {
+                    await smtpClient.AuthenticateAsync(oauth2);   
+                }
                 await smtpClient.SendAsync(pendingEmail);
                 //logger.LogInformation("Emails have been sent!");
             }
@@ -84,7 +87,7 @@ namespace NotesOTG_Server.Services.Background
         
         private async Task<bool> GetCredential(string email)
         {
-            var file = await File.ReadAllTextAsync("############");
+            var file = await File.ReadAllTextAsync("C:/Users/wante/Desktop/vivid-bond-307003-2041f21c86a4.json");
             var jsonObject = JObject.Parse(file);
 
             credential = new ServiceAccountCredential(new ServiceAccountCredential
@@ -100,7 +103,7 @@ namespace NotesOTG_Server.Services.Background
             {
                 credentialsList.Add(email, credential);
             }
-            return false;
+            return result;
         }
     }
 }

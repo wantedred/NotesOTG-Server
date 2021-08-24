@@ -9,6 +9,7 @@ using NotesOTG_Server.Models.Http.Requests;
 using NotesOTG_Server.Models.Http.Responses;
 using NotesOTG_Server.Models.Http.Responses.impl;
 using NotesOTG_Server.Services.Data.Impl.Email.Impl;
+using NotesOTG_Server.Services.Data.Impl.Tokens;
 using NotesOTG_Server.Services.Interfaces;
 
 namespace NotesOTG_Server.Services
@@ -21,18 +22,21 @@ namespace NotesOTG_Server.Services
         private readonly RoleService roleService;
         private readonly TokenService tokenService;
         private readonly IConfiguration configuration;
+        private readonly EmailTokenService emailTokenService;
         
         public UserService ( UserManager<NotesUser> userManager,
             SignInManager<NotesUser> signInManager,
             RoleService roleService,
             TokenService tokenService,
-            IConfiguration configuration) 
+            IConfiguration configuration,
+            EmailTokenService emailTokenService) 
         {
             this.userManager = userManager;
             this.roleService = roleService;
             this.tokenService = tokenService;
             this.signInManager = signInManager;
             this.configuration = configuration;
+            this.emailTokenService = emailTokenService;
         }
         
         public async Task<LoginResponse> Login(LoginRequest request)
@@ -71,9 +75,10 @@ namespace NotesOTG_Server.Services
             if (addUserTask.Succeeded)
             {
                 await roleService.AddUserToRole(notesUser, RoleType.User);
-                Guid guid = Guid.NewGuid();
+                await emailTokenService.GenerateEmailVerificationToken(notesUser.Email);
+                /*Guid guid = Guid.NewGuid();
                 var emailToken = Convert.ToBase64String(guid.ToByteArray());
-                new EmailVerificationTemplate(notesUser.Email, emailToken).PrepareAndSend();
+                new EmailVerificationTemplate(notesUser.Email, emailToken).PrepareAndSend();*/
                 return new RegisterResponse {Success = true};
             }
             
