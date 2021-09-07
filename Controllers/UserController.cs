@@ -18,7 +18,7 @@ namespace NotesOTG_Server.Controllers
 
         private readonly UserManager<NotesUser> userManager;
         private readonly EmailTokenService emailTokenService;
-
+        //WORK ON password reset form with email
         public UserController(UserManager<NotesUser> userManager, EmailTokenService emailTokenService)
         {
             this.userManager = userManager;

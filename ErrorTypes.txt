@@ -3,3 +3,11 @@
 4532 - user is null. Method : GenerateEmailVerificationToken
 3524 - user is null. Method : ConfirmEmail
 
+Password token Service
+2142 - no email was supplied. Method : GenerateAndSendPasswordToken
+2145 - user is null. Method : GenerateAndSendPasswordToken
+2140 - no token was supplied. Method : VerifyPasswordToken
+2141 - user is null. Method: PasswordResetWithToken
+2142 - password token is null. Method: PasswordResetWithToken
+2138 - Password is null. Method : PasswordResetWithToken
+2139 - Token is null. Method : PasswordResetWithToken
