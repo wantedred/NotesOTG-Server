@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using NotesOTG_Server.Services.Data.Impl.Tokens;
+using NotesOTG_Server.Services.Data.Impl;
+using Microsoft.AspNetCore.Http;
 
 namespace NotesOTG_Server
 {
@@ -29,12 +31,11 @@ namespace NotesOTG_Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DatabaseContext>(options =>
             {
-                /*options.UseMySql(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    new MySqlServerVersion(ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection")).Version));*/
-                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
 
             services.AddIdentity<NotesUser, IdentityRole>(options =>
@@ -76,16 +77,18 @@ namespace NotesOTG_Server
                        RequireExpirationTime = true,
                        ClockSkew = TimeSpan.Zero,//add five minute grace period by default
 
-                        ValidIssuer = "https://localhost:44361",
+                       ValidIssuer = "https://localhost:44361",
                        ValidAudience = "http://localhost:4200",
                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
                    };
                });
-            
+
+            services.AddHttpContextAccessor();
             services.AddTransient(typeof(RoleService));
             services.AddTransient(typeof(UserService));
             services.AddTransient(typeof(EmailTokenService));
             services.AddTransient(typeof(TokenService));
+            services.AddTransient(typeof(NotesService));
 
         }
 

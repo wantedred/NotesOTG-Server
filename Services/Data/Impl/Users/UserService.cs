@@ -1,7 +1,11 @@
 using System;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using NotesOTG_Server.Models;
@@ -23,13 +27,15 @@ namespace NotesOTG_Server.Services
         private readonly TokenService tokenService;
         private readonly IConfiguration configuration;
         private readonly EmailTokenService emailTokenService;
+        private readonly IHttpContextAccessor httpContext;
         
         public UserService ( UserManager<NotesUser> userManager,
             SignInManager<NotesUser> signInManager,
             RoleService roleService,
             TokenService tokenService,
             IConfiguration configuration,
-            EmailTokenService emailTokenService) 
+            EmailTokenService emailTokenService,
+            IHttpContextAccessor httpContext) 
         {
             this.userManager = userManager;
             this.roleService = roleService;
@@ -37,6 +43,7 @@ namespace NotesOTG_Server.Services
             this.signInManager = signInManager;
             this.configuration = configuration;
             this.emailTokenService = emailTokenService;
+            this.httpContext = httpContext;
         }
         
         public async Task<LoginResponse> Login(LoginRequest request)
@@ -198,6 +205,15 @@ namespace NotesOTG_Server.Services
             var usernameExists = await userManager.FindByNameAsync(username);
             return usernameExists == null ? new BasicResponse{Success = true} 
                 : new BasicResponse{Success = false, Error = "Username is already in use."};
+        }
+
+        public async Task<NotesUser> GetUser()
+        {
+
+            var email = httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email).Value;
+            Console.WriteLine(email);
+            var user = await userManager.FindByEmailAsync(email);
+            return user;
         }
         
     }

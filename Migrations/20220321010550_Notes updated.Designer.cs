@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NotesOTG_Server.Models.Contexts;
 
@@ -10,9 +11,10 @@ using NotesOTG_Server.Models.Contexts;
 namespace NotesOTG_Server.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220321010550_Notes updated")]
+    partial class Notesupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,9 +205,6 @@ namespace NotesOTG_Server.Migrations
                     b.Property<string>("NoteUser")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
-
-                    b.Property<string>("PublicId")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .IsRequired()
