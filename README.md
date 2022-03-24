@@ -1,8 +1,8 @@
-This a .net 6 core web api project. The project contains features listed:
-  • User registration/login
-  • User notes using the MYSQL Database
-  • JWT(JSON web tokens) with refresh Tokens
-  • Backgound Services
-  • Email sending system
-  • Password Resets
-  • Email verification with email service
+This a .net 6 core web api project. The project contains features listed: <br/>
+  • User registration/login <br/>
+  • User notes using the MYSQL Database <br/>
+  • JWT(JSON web tokens) with refresh Tokens <br/>
+  • Backgound Services <br/>
+  • Email sending system <br/>
+  • Password Resets <br/>
+  • Email verification with email service <br/>
